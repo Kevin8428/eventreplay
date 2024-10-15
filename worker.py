@@ -1,18 +1,11 @@
 """
-Worker to consume from specified queue.
-
-Worker then publishes message to the provided Cloud Map service.
+Example implementation - Consume from queue, optionally store messages with temporal partition in S3 so they can be replayed
 """
 import os
 import logging
 import argparse
 
-import boto3
-from botocore.client import Config
-import requests
-
 from eventreplay.consumers import sqs
-
 
 logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
 logger = logging.getLogger(__name__)
@@ -21,7 +14,6 @@ parser = argparse.ArgumentParser(description='worker')
 parser.add_argument('--account_id', action="store", dest='account_id', default=0)
 args = parser.parse_args()
 account_id = args.account_id
-logger.info('account_id: %s', account_id)
 S3_BUCKET = 'event-replay-3jxh'
 
 def main():
@@ -36,8 +28,8 @@ def main():
                         message_store='s3',
                         storage_destination=S3_BUCKET)
     
-    for msg in client.consume():
-        print('msg', msg)
+    for _ in client.consume():
+        print('msg received')
     
 
 if __name__ == "__main__":
