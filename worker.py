@@ -31,8 +31,9 @@ def main():
     queue_name = 'eventreplay'
     client = sqs.client(queue_name=queue_name, account_id=account_id)
     
-logger.info('Starting SQS consumer')
+    for msg in client.consume():
+        print('msg', msg)
+    
 
 if __name__ == "__main__":
-    logger.info('Starting SQS consumer')
     main()
