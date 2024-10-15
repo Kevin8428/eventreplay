@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser(description='worker')
 parser.add_argument('--account_id', action="store", dest='account_id', default=0)
 args = parser.parse_args()
 account_id = args.account_id
-logger.info('account_id: ', account_id)
+logger.info('account_id: %s', account_id)
 
 def main():
     """
@@ -29,7 +29,7 @@ def main():
     """
     logger.info('Starting SQS consumer')
     queue_name = 'eventreplay'
-    client = sqs.client(queue_name, account_id)
+    client = sqs.client(queue_name=queue_name, account_id=account_id)
     
 logger.info('Starting SQS consumer')
 
