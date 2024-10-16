@@ -4,7 +4,7 @@ Example implementation - Replay messages to designated eventing service
 import os
 import logging
 
-from eventreplay import consumers
+from eventreplay import eventers
 
 logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
 logger = logging.getLogger(__name__)
@@ -21,8 +21,8 @@ def handler(start, end, eventer='sqs', action='replay', **kwargs):
     # eg - helper func can specify kwargs.get('queue') when eventer is sqs
     # this is sqs specific implementation
     kwargs = {**kwargs, **dict(action = action)}
-    eventers = {x: consumers.client(x, **kwargs) for x in ['sqs']}
-    client = eventers[eventer]
+    clients = {x: eventers.client(x, **kwargs) for x in ['sqs']}
+    client = clients[eventer]
     client.replay(start, end, S3_BUCKET)
     
 

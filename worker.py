@@ -5,7 +5,7 @@ import os
 import logging
 import argparse
 
-from eventreplay.consumers import sqs
+from eventreplay.eventers import sqs
 
 logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
 logger = logging.getLogger(__name__)

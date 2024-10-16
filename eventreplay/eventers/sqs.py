@@ -10,7 +10,7 @@ import boto3
 import pytz
 from botocore.client import Config
 
-from eventreplay.consumers import base
+from eventreplay.eventers import base
 from eventreplay.s3 import reader as s3Reader
 
 DELETE_MESSAGES = False # temp for development
@@ -171,7 +171,6 @@ class SQSConsumer(base.Client):
                 self.logger.info('delete failure: %s;', e)
                 continue
         
-# TODO: change package from `consumers` to `eventers`
 def client(**kwargs):
     # TODO: move this logic - this way you are needing to fetch `action` in 
     # every implementation of `consumers`
