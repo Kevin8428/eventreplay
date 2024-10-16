@@ -22,6 +22,7 @@ def main():
     """
     logger.info('Starting SQS consumer')
     queue_name = 'eventreplay'
+    # TODO: remove need for account id
     client = sqs.client(queue_name=queue_name,
                         account_id=account_id,
                         persist_messages=True,

@@ -50,6 +50,7 @@ class SQSReplayer():
     Replay to given queue for given time range
     """
     def __init__(self, **params):
+        # TODO: add dry-run flag
         self.logger = logger
         self.s3_client = S3_CLIENT
         self.queue = params.get('queue')
@@ -89,6 +90,9 @@ class SQSReplayer():
 
 
 class SQSConsumer(base.Client):
+    """
+    SQS worker - replay/storage is optional feature
+    """
     def __init__(self, queue_name, account_id, persist_messages=True, message_store='s3', storage_destination=None):
         self.queue = queue_name
         self.account_id = account_id if account_id else os.environ['ACCOUNT_ID']
