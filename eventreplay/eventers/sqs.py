@@ -12,6 +12,7 @@ from botocore.client import Config
 
 from eventreplay.eventers import base
 from eventreplay.s3 import reader as s3Reader
+from eventreplay import exceptions
 
 DELETE_MESSAGES = False # temp for development
 S3_CLIENT = boto3.client('s3',
@@ -172,6 +173,7 @@ class SQSConsumer(base.Client):
                 continue
         
 def client(**kwargs):
+    """docstring"""
     # TODO: move this logic - this way you are needing to fetch `action` in 
     # every implementation of `consumers`
     action = kwargs.get('action','consume')
@@ -182,5 +184,5 @@ def client(**kwargs):
         case 'replay':
             return SQSReplayer(**kwargs)
         case _:
-            raise 'action not implemented'
+            raise exceptions.EventerException('action not implemented')
         
