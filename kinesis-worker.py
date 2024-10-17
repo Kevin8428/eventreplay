@@ -47,12 +47,7 @@ class KinesisStream:
         # need to read each shard individually
         # need to handle reshard
         #   - when get_records returns info about child shard
-        # shards = [shards[0]]
-        # print('shards: ', shards)
         while True:
-            # run indefinitely
-            # try each shard, if no records, sleep 5 seconds
-            # if records, yield
             for shard in shards:
                 shard_id = shard.get('ShardId')
                 sequence_number = self.get_sequence_number(shard_id)
@@ -70,11 +65,12 @@ class KinesisStream:
                         # ShardIteratorType="LATEST", # this will just read next incoming message
                         # ShardIteratorType="TRIM_HORIZON", # this will start from oldest record in shard
                     )
+                    print('get_shard_iterator response: ', response)
                     shard_iter = response["ShardIterator"]
-                    # can return no records, if so, set a deay
                     response = self.kinesis_client.get_records(
                         ShardIterator=shard_iter, Limit=10
                     )
+                    print('get_records response: ', response)
                     shard_iter = response["NextShardIterator"]
                     _records = response["Records"]
                     if len(_records) == 0:
