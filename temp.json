@@ -1,0 +1,73 @@
+[
+    {
+        "ShardId": "shardId-000000000000",
+        "HashKeyRange": {
+            "StartingHashKey": "0",
+            "EndingHashKey": "170141183460469231731687303715884105727"
+        },
+        "SequenceNumberRange": {
+            "StartingSequenceNumber": "49656851939481328655566380722762098045444747582140055554"
+        }
+    },
+    {
+        "ShardId": "shardId-000000000001",
+        "HashKeyRange": {
+            "StartingHashKey": "170141183460469231731687303715884105728",
+            "EndingHashKey": "340282366920938463463374607431768211455"
+        },
+        "SequenceNumberRange": {
+            "StartingSequenceNumber": "49656851939503629400764911345903633763717395943646035986"
+        }
+    }
+]
+// get_shard_iterator
+{
+    "ShardIterator": "AAAAAAAAAAH8BTbObO8HyUri2e5ZyrkECU789upUcUkqplv8J+9kT5KgyB/r+6BLftZvuPO0bNvUdBEVQx5sCp3ZjFiNDYl6HODne9141sdMpx+aznVZB013u8lMZgxZ8XK80EzJs/rBfjdcGiwdmjYnSLfn8GnNPyUwjk8j2EKE/VRbNR+x6oeSek5K3j/i+73ZRjUX57lZ9nLtk8j8KY9cliBTX5zPNnDQDvhhbMLu82QGthDc0A==",
+    "ResponseMetadata": {
+        "RequestId": "de8cba6f-bbd7-d788-8107-e19d7258cd7a",
+        "HTTPStatusCode": 200,
+        "HTTPHeaders": {
+            "x-amzn-requestid": "de8cba6f-bbd7-d788-8107-e19d7258cd7a",
+            "x-amz-id-2": "lhvrGp2RsEE0eC29eIxR/Txaz+gXQfQNUsJ+fe5E3AK4+h1iNt9TJNufKnfig4+ttUOLdtfHAljTEU0N0z3rFS2b+CzVmdUlgKpbUS1Vv0k=",
+            "date": "Thu, 17 Oct 2024 18:38:42 GMT",
+            "content-type": "application/x-amz-json-1.1",
+            "content-length": "268",
+            "connection": "keep-alive"
+        },
+        "RetryAttempts": 0
+    }
+}
+// get_records
+{
+    "Records": [],
+    "NextShardIterator": "AAAAAAAAAAHSm0Snt55IIZZtqkispm3+baydEgGiEDavL4p69sUKK8V0xBLt/d3LJMkg+OL74pb/kaFjIKWiutmlfLBHUX1zgEYpnsGmXDkuBGP/8y+SIqDM1AskW9ZQBOl2Q0ABaNI22ZC0VtYJgn/NkyTgMHOZQdwSXbeanDGkU3ChjSQfYz93LjjEKlhUApyln1WXuoUDhbdgy69C2cyMDhptmfrg3YnRxdYlkaa6Vp5pp7kXsg==",
+    "MillisBehindLatest": 0,
+    "ResponseMetadata": {
+        "RequestId": "cb8ea5e3-3feb-bc50-9405-fe11f664a6a2",
+        "HTTPStatusCode": 200,
+        "HTTPHeaders": {
+            "x-amzn-requestid": "cb8ea5e3-3feb-bc50-9405-fe11f664a6a2",
+            "x-amz-id-2": "6Ka7TcBxMl+nb+p3ndk1XRe/CCFiQPhduNmpYlR96BYGBU2oyNt6CDoqwFUQY9jxGyLyT9Lc13leSeNDGfUQcWvucwgrxjNAW7EaKf6lC2o=",
+            "date": "Thu, 17 Oct 2024 18:38:42 GMT",
+            "content-type": "application/x-amz-json-1.1",
+            "content-length": "308",
+            "connection": "keep-alive"
+        },
+        "RetryAttempts": 0
+    }
+}
+// records found
+[
+    {
+        "SequenceNumber": "49656851939503629400764911346329175652222028812264669202",
+        "ApproximateArrivalTimestamp": datetime.datetime(2024,10,17,14,56,25,914000, tzinfo=tzlocal()),
+        "Data": b"\xb2\x89\x9e\xad\xe7(\xad\xdd{\xdb\xdd}\xd7\x7f8",
+        "PartitionKey": "lTGBQAVv4ydRy64ksOvYqi4R9pkqDv3kCX0t9Y8jDmJZE2isiy"
+    },
+    {
+        "SequenceNumber": "49656851939503629400764911346331593503861292499071926290",
+        "ApproximateArrivalTimestamp": datetime.datetime(2024,10,17,15,4,46,179000, tzinfo=tzlocal()),
+        "Data": b"\xb2\x89\x9e\xad\xe7(\xad\xdd{\xdb\xdd}\xd7\xcf9",
+        "PartitionKey": "oca95VpV8LLwgWwaoVqLhcg97A6aaOg8ZE1zyzcXXPN3ZQvvw0"
+    }
+]
