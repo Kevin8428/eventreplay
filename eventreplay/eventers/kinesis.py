@@ -35,11 +35,11 @@ class KinesisConsumer(base.ConsumerClient):
         self.storage_destination = storage_destination
 
 
-    def get_sequence_number(self, shard_id):
+    def _get_sequence_number(self, shard_id):
         """need to persist somwhere like s3 or EFS"""
         return self.next_sequence_number.get(shard_id, None)
     
-    def set_sequence_number(self, shard_id, sequence_number):
+    def _set_sequence_number(self, shard_id, sequence_number):
         """
         need to persist somwhere like s3 or EFS
         Checkpoint shard position. For this to be of any use, can't store in memory.
@@ -47,11 +47,11 @@ class KinesisConsumer(base.ConsumerClient):
         self.next_sequence_number.setdefault(shard_id, "")
         self.next_sequence_number[shard_id] = sequence_number
 
-    def get_next_shard_iterator(self, shard_id):
+    def _get_next_shard_iterator(self, shard_id):
         """need to persist somwhere like s3 or EFS"""
         return self.next_shard_iterator.get(shard_id, None)
     
-    def set_next_shard_iterator(self, shard_id, next_shard_iterator):
+    def _set_next_shard_iterator(self, shard_id, next_shard_iterator):
         """need to persist somwhere like s3 or EFS"""
         self.next_shard_iterator.setdefault(shard_id, "")
         self.next_shard_iterator[shard_id] = next_shard_iterator
@@ -67,10 +67,11 @@ class KinesisConsumer(base.ConsumerClient):
         while True:
             for shard in shards:
                 shard_id = shard.get('ShardId')
-                sequence_number = self.get_sequence_number(shard_id)
+                # TODO: need to set set sequence nubmer below
+                sequence_number = self._get_sequence_number(shard_id)
                 if sequence_number is None: # start from beginning
                     sequence_number = shard.get('SequenceNumberRange').get('StartingSequenceNumber')
-                shard_iter = self.get_next_shard_iterator(shard_id)
+                shard_iter = self._get_next_shard_iterator(shard_id)
                 if shard_iter is None:
                     try:
                         shard_iter = self.kinesis_client.get_shard_iterator(
@@ -90,7 +91,7 @@ class KinesisConsumer(base.ConsumerClient):
                         ShardIterator=shard_iter, Limit=10
                     )
                     shard_iter = response['NextShardIterator']
-                    self.set_next_shard_iterator(shard_id, shard_iter)
+                    self._set_next_shard_iterator(shard_id, shard_iter)
                     _records = response['Records']
                     if self.persist_messages:
                         # self.s3_client.put_object(Body=)

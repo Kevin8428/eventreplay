@@ -5,7 +5,6 @@ import os
 import re
 import json
 import logging
-import typing
 from datetime import datetime, timezone
 from dataclasses import dataclass
 
@@ -30,14 +29,15 @@ class File():
 class Packet():
     bucket: str
     prefix: str
-    files: list # list of File
+    files: list
+
 
 class Writer():
     def __init__(self, eventer, bucket):
         self.eventer = eventer
         self.bucket = bucket
         # self.packets = typing.Dict[str, File] # TODO: get typing working here
-        self.packets = {} # {'ts': []File}
+        self.packets = {}
         self.client = S3_CLIENT
         self.logger = logging.getLogger(__name__)
     
@@ -47,13 +47,13 @@ class Writer():
             prefix = f'{self.eventer}/{ts}'
             for file in files:
                 try:
-                    body = json.dumps(file.content, indent=2).encode('utf-8')
-                    bucket = self.bucket
+                    body = json.dumps(file.content, default=lambda o: o.__dict__, indent=2).encode('utf-8')
+                    print('body:', body)
                     key = f'{prefix}/{file.name}'
-                    self.client.put_object(Body=body, Bucket=bucket, Key=key)
+                    self.client.put_object(Body=body, Bucket=self.bucket, Key=key)
                 except Exception as e:
                     self.logger.error('Error saving to s3: %s ', e)
-            self.logger.info('writing files to: s3://%s ', prefix)
+            self.logger.info('writing files to: s3://%s/%s/ ', self.bucket, prefix)
 
     def buffer(self, file: File):
         """docstring"""
@@ -107,8 +107,7 @@ class Reader():
                 break
         prefix = prefix.rpartition('/')[0] + '/'
         return prefix
-        
-    
+
     def _files(self):
         bucket = self.resource.Bucket(self.bucket)
         candidates = bucket.objects.filter(Prefix=self.prefix)

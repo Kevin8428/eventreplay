@@ -7,11 +7,10 @@ import json
 from datetime import datetime, timezone
 
 import boto3
-import pytz
 from botocore.client import Config
 
 from eventreplay.eventers import base
-from eventreplay.s3.reader import Reader, Writer, File
+from eventreplay.storage.s3 import Reader, Writer, File
 from eventreplay import exceptions
 
 DELETE_MESSAGES = False # temp for development
@@ -22,6 +21,35 @@ SQS_CLIENT = boto3.resource('sqs',
 
 logging.basicConfig(level=os.environ.get('LOG_LEVEL', 'INFO'))
 logger = logging.getLogger(__name__)
+
+class SQSMessage():
+    """
+    Unmarshalled from storage
+    """
+    def __init__(self, **kwargs):
+        for key, val in kwargs.items():
+            setattr(self, key, val)
+        
+    @classmethod
+    def from_dict(cls, message):
+        """
+        instantiate class
+        """
+        return cls(**message)
+    
+    @classmethod
+    def from_binary(cls, b):
+        """
+        instantiate class
+        """
+        return cls(**json.loads(b.decode()))
+    
+    @classmethod
+    def from_boto3(cls, message):
+        """
+        instantiate class
+        """
+        return cls(**{k: getattr(message, k) for k in dir(message) if isinstance(getattr(message, k), (str, dict)) and k[0]!= '_'})
 
 class SQSConsumer(base.ConsumerClient):
     """
@@ -49,17 +77,10 @@ class SQSConsumer(base.ConsumerClient):
             if len(sts) == 13:
                 sts = round(int(sts)/1000)
             ts = datetime.fromtimestamp(float(sts), tz=timezone.utc).strftime('%Y/%m/%d/%H/%M')
-            ts_est = datetime.fromtimestamp(float(sts), tz=pytz.timezone("America/New_York")).strftime('%Y/%m/%d %H:%M:%S')
-            # TODO: create SQSMessage and send to File()
             # TODO: pass entire message, have replayer wrap entire message and include some metadata
             # TODO; make this consumer detect replayed message and unwrap original message
-            file = File(message.message_id, ts, {'message_id': message.message_id,
-                        'send_timestamp_str_est': ts_est,
-                        'queue_url': message.queue_url,
-                        'body': message.body,
-                        'attributes': message.attributes,
-                        'receipt_handle': message.receipt_handle,
-                        'md5_of_body': message.md5_of_body})
+            m = SQSMessage.from_boto3(message)
+            file = File(message.message_id, ts, m)
             self.writer.buffer(file)
         self.writer.write()
 
@@ -83,8 +104,7 @@ class SQSConsumer(base.ConsumerClient):
                     {"Id": str(ind), "ReceiptHandle": msg.receipt_handle}
                     for ind, msg in enumerate(messages)
                 ]
-                if len(entries) < 1: continue
-                if not DELETE_MESSAGES: continue
+                if len(entries) < 1 or not DELETE_MESSAGES: continue
                 self.logger.info('delete attempt')
                 self.client.delete_messages(
                     Entries=entries
@@ -93,28 +113,6 @@ class SQSConsumer(base.ConsumerClient):
             except Exception as e:
                 self.logger.info('delete failure: %s;', e)
                 continue
-
-class SQSMessage():
-    """
-    Unmarshalled from storage
-    """
-    def __init__(self, **kwargs):
-        for key, val in kwargs.items():
-            setattr(self, key, val)
-        
-    @classmethod
-    def from_dict(cls, message):
-        """
-        instantiate class
-        """
-        return cls(**message)
-    
-    @classmethod
-    def from_binary(cls, b):
-        """
-        instantiate class
-        """
-        return cls(**json.loads(b.decode()))
 
 class SQSReplayer(base.ReplayerClient):
     """
