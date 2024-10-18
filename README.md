@@ -25,3 +25,9 @@ You can then replay with
 client = sqs.client(action='replay')
 client.replay(start = 202410150800, end = 202410150801)
 ```
+
+# testing
+`./scripts/worker-init.sh sqs` requires SQS queue, s3 bucket
+`./scripts/replayer-init.sh sqs` requires SQS queue, s3 bucket
+`./scripts/worker-init.sh kinesis` requires kinesis stream, s3 bucket
+`./scripts/replayer-init.sh kinesis` requires kinesis stream, s3 bucket

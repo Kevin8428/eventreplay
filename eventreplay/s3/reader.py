@@ -3,8 +3,11 @@ Handle reading of messages saved in S3.
 """
 import os
 import re
+import json
 import logging
+import typing
 from datetime import datetime, timezone
+from dataclasses import dataclass
 
 import boto3
 
@@ -14,6 +17,55 @@ from eventreplay import exceptions
 PATTERN = r"(\d{4}/\d{2}/\d{2}/\d{2}/\d{2})"
 
 logging.basicConfig(level=os.environ.get('LOG_LEVEL', 'INFO'))
+
+S3_CLIENT = boto3.client('s3', region_name='us-west-2')
+
+@dataclass
+class File():
+    name: str
+    timestamp: str
+    content: dict
+
+@dataclass
+class Packet():
+    bucket: str
+    prefix: str
+    files: list # list of File
+
+class Writer():
+    def __init__(self, eventer, bucket):
+        self.eventer = eventer
+        self.bucket = bucket
+        # self.packets = typing.Dict[str, File] # TODO: get typing working here
+        self.packets = {} # {'ts': []File}
+        self.client = S3_CLIENT
+        self.logger = logging.getLogger(__name__)
+    
+    def write(self):
+        """docstring"""
+        for ts, files in self.packets.items():
+            prefix = f'{self.eventer}/{ts}'
+            for file in files:
+                try:
+                    body = json.dumps(file.content, indent=2).encode('utf-8')
+                    bucket = self.bucket
+                    key = f'{prefix}/{file.name}'
+                    self.client.put_object(Body=body, Bucket=bucket, Key=key)
+                except Exception as e:
+                    self.logger.error('Error saving to s3: %s ', e)
+            self.logger.info('writing files to: s3://%s ', prefix)
+
+    def buffer(self, file: File):
+        """docstring"""
+        if file.timestamp not in self.packets:
+            self.packets[file.timestamp] = [file]
+        else:
+            self.packets[file.timestamp].append(file)
+    
+    @classmethod
+    def from_sqs(cls, bucket):
+        return cls('sqs', bucket)
+
 
 class Reader():
     """
